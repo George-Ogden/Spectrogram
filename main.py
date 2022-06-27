@@ -17,5 +17,10 @@ window = np.exp(-np.pi * window ** 2)
 signal = np.pad(signal, length * 2)
 
 f, t, Sxx  = scipy.signal.spectrogram(signal,fs=sr,nperseg=len(window),window=window)
-plt.pcolormesh(t, f, Sxx, shading='gouraud')
-plt.show()
+
+Sxx *= 255 / Sxx.max()
+Sxx = cv2.resize(Sxx, (1920, 1080))
+cv2.imshow("image", Sxx)
+while True:
+    if chr(cv2.waitKey(0)) == "q":
+        break
