@@ -3,10 +3,11 @@ import scipy.signal
 import soundfile as sf
 import numpy as np
 import cv2
-from tqdm import trange
 from ffmpeg import FFmpeg
 import asyncio
 import time
+from tqdm import trange
+from halo import Halo
 
 raw, sr = sf.read("music.ogg")
 raw = raw.sum(axis=1)
@@ -34,7 +35,7 @@ spectrogram = np.flipud(spectrogram.astype(np.uint8))
 
 writer = cv2.VideoWriter("video.mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, shape, False)
 
-for i in trange(int(duration * fps)):
+for i in trange(int(duration * fps), message="Creating video"):
     left = int(i * sr / fps / width)
     image = cv2.resize(spectrogram[:,left : left + size * 2], shape)
     image = cv2.filter2D(image, -1, kernel)
@@ -51,4 +52,5 @@ ffmpeg = FFmpeg().option('y').input(
     "output.mp4"
 )
 
-asyncio.run(ffmpeg.execute())
+with Halo(text="Adding audio", spinner="line"):
+    asyncio.run(ffmpeg.execute())
