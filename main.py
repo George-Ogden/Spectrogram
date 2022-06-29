@@ -19,19 +19,19 @@ from halo import Halo
 
 def parse_args():
     parser = ArgumentParser(description="Create spectrogram from music")
+    parser.add_argument("-i", "--input", required=True, help="input audio")
+    parser.add_argument("-o", "--output", default="output.mp4",
+                        help="output video (default: output.mp4)")
+    parser.add_argument("-p", "--preview", action="store_true",
+                        help="preview when complete")
     parser.add_argument("-f", "--fps", type=float, default=30,
                         help="frame rate of video (default: 30)")
     parser.add_argument("-r", "--resolution", type=lambda x: tuple(map(int, x.lower().split("x"))),
                         default=(1920, 1080), help="video resolution (default: 1920x1080)")
     parser.add_argument("-l", "--lookahead", type=float, default=3,
                         help="number of seconds before each note is played (default: 3)")
-    parser.add_argument("-i", "--input", required=True, help="input audio")
-    parser.add_argument("-o", "--output", default="output.mp4",
-                        help="output video (default: output.mp4)")
     parser.add_argument("-s", "--sample_rate", type=int, default=16000,
                         help="adjusted sampling rate - approx twice the highest frequency (default: 16000)")
-    parser.add_argument("-p", "--preview", action="store_true",
-                        help="preview when complete")
     return parser.parse_args()
 
 
