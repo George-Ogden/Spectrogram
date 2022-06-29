@@ -55,10 +55,10 @@ if __name__ == "__main__":
         # change format of input audio
         AudioSegment.from_file(infile).export("tmp/music.wav", format="wav")
         # load file
-        raw, sr = sf.read("tmp/music.wav")
+        raw, rate = sf.read("tmp/music.wav")
         if raw.ndim > 1:
             raw = raw.sum(axis=1)
-        duration = len(raw) / sr
+        duration = len(raw) / rate
 
         # resample to lower sample rate
         resampled = scipy.signal.resample(raw, int(duration * sr))
@@ -116,7 +116,7 @@ if __name__ == "__main__":
         spinner.succeed()
 
         # preview file
-        if args["preview"]:
+        if args.preview:
             os.startfile(outfile)
 
     except Exception as e:
