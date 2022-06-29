@@ -18,7 +18,7 @@ pip install -r requirements.txt
 ## Usage
 ### Recommended Usage
 ```
-python song.mp3 -o spectrogram.mp4
+python -i song.mp3 -o spectrogram.mp4
 ```
 ### Full Usage
 ```
