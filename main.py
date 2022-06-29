@@ -9,18 +9,22 @@ import asyncio
 from tqdm import trange
 from halo import Halo
 
+fps = 30
+shape = (1920, 1080)
+lookahead = 5
+infile = "music.ogg"
+outfile = "output.mp4"
+
 # load file
-raw, sr = sf.read("music.ogg")
+raw, sr = sf.read()
 raw = raw.sum(axis=1)
 
 duration = len(raw) / sr
+
 # set parameters
 sr = 3000
-fps = 30
-shape = (1920, 1080)
 length = 512
 width = 64
-lookahead = 5
 kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
 
 # resample to lower sample rate
@@ -42,7 +46,7 @@ spectrogram = np.flipud(spectrogram.astype(np.uint8))
 
 # open video
 writer = cv2.VideoWriter(
-    "video.mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, shape, False)
+    "tmp/video.mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, shape, False)
 
 # add each frame to video
 for i in trange(int(duration * fps), desc="Creating video"):
@@ -59,11 +63,11 @@ writer.release()
 
 # dub music
 ffmpeg = FFmpeg().option('y').input(
-    "music.ogg"
+    infile
 ).input(
-    "video.mp4"
+    "tmp/video.mp4"
 ).output(
-    "output.mp4"
+    outfile
 )
 # add spinner as this takes a while
 spinner = Halo(text="Adding audio", spinner="line")
