@@ -28,7 +28,7 @@ def parse_args():
     parser.add_argument("-i", "--input", required=True, help="input audio")
     parser.add_argument("-o", "--output", default="output.mp4",
                         help="output video (default: output.mp4)")
-    parser.add_argument("-s", "--sampling_rate", type=int, default=16000,
+    parser.add_argument("-s", "--sample_rate", type=int, default=16000,
                         help="adjusted sampling rate - approx twice the highest frequency (default: 16000)")
     parser.add_argument("-p", "--preview", action="store_true",
                         help="preview when complete")
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         lookahead = args.lookahead
         infile = args.input
         outfile = args.output
-        sr = args.sampling_rate
+        sr = args.sample_rate
         length = 1024
         width = 64
         kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
