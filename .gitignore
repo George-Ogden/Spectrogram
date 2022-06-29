@@ -1,0 +1,25 @@
+# temporary directory and files
+tmp/*
+
+# inputs
+*.wav
+*.mp3
+*.ogg
+*.flv
+*.wma
+*.aiff
+*.m4a
+*.acc
+*.flac
+*.alac
+
+# outputs
+*.mp4
+*.avi
+*.mov
+*.flv
+*.mkv
+*.wmv
+*.avchd
+*.webm
+*.mpeg4
