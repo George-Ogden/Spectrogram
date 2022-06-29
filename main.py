@@ -76,7 +76,7 @@ if __name__ == "__main__":
         spinner.succeed()
 
         # process spectrogram for better display
-        spectrogram = np.pad(spectrogram, ((0, 0), (padding, padding)))
+        spectrogram = np.pad(spectrogram, ((0, 0), (padding * 2, padding)))
         spectrogram /= spectrogram.max()
         spectrogram = 1 - (1 - np.minimum(1, np.sqrt(spectrogram))) ** 4
         spectrogram *= 255
