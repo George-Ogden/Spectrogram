@@ -52,8 +52,11 @@ if __name__ == "__main__":
         width = 64
         kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
 
-        # change format of input audio
-        AudioSegment.from_file(infile).export("tmp/music.wav", format="wav")
+        # change format of input audio and add silence at start
+        audio = AudioSegment.from_file(infile)
+        audio = AudioSegment.silent(lookahead * 1000) + audio
+        audio.export("tmp/music.wav", format="wav")
+
         # load file
         raw, rate = sf.read("tmp/music.wav")
         if raw.ndim > 1:
@@ -76,7 +79,7 @@ if __name__ == "__main__":
         spinner.succeed()
 
         # process spectrogram for better display
-        spectrogram = np.pad(spectrogram, ((0, 0), (padding * 2, padding)))
+        spectrogram = np.pad(spectrogram, ((0, 0), (padding, padding)))
         spectrogram /= spectrogram.max()
         spectrogram = 1 - (1 - np.minimum(1, np.sqrt(spectrogram))) ** 4
         spectrogram *= 255
@@ -102,7 +105,7 @@ if __name__ == "__main__":
 
         # dub music
         ffmpeg = FFmpeg().option('y').input(
-            infile
+            "tmp/music.wav"
         ).input(
             "tmp/video.mp4"
         ).output(
