@@ -13,7 +13,7 @@ Full playlist: [https://www.youtube.com/watch?v=W_m7tK5T9-I&list=PL1_riyn9sOjc3F
 ## Usage
 ### Recommended Usage
 ```
-python song.mp3 -o spectrogram.mp4
+python -i song.mp3 -o spectrogram.mp4
 ```
 ### Full Usage
 ```
