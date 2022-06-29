@@ -1,85 +1,103 @@
 import scipy.signal
 import numpy as np
 import cv2
+
+from argparse import ArgumentParser
 import os
 
 from pydub.utils import get_array_type
 from pydub import AudioSegment
+
 from ffmpeg import FFmpeg
 import soundfile as sf
 import asyncio
-import array
 
 from tqdm import trange
 from halo import Halo
 
-fps = 30
-shape = (1920, 1080)
-lookahead = 3
-infile = "Fur Elise.mp3"
-outfile = "Fur Elise.mp4"
+def parse_args():
+    parser = ArgumentParser(description="Create spectrogram from music")
+    parser.add_argument("-f","--fps", type=float, default=30, help="frame rate of video (default: 30)")
+    parser.add_argument("-r","--resolution",type=lambda x : tuple(map(int,x.lower().split("x"))), default=(1920, 1080), help="video resolution (default: 1920x1080)")
+    parser.add_argument("-l","--lookahead",type=float, default=3, help="number of seconds before each note is played (default: 3)")
+    parser.add_argument("-i","--input",required=True, help="input audio")
+    parser.add_argument("-o","--output",default="output.mp4", help="output video (default: output.mp4)")
+    parser.add_argument("-s","--sampling_rate",type=int, default=16000, help="adjusted sampling rate - approx twice the highest frequency (default: 16000)")
+    return parser.parse_args()
 
-if not os.path.exists("tmp"):
-    os.mkdir("tmp")
+if __name__ == "__main__":
+    args = parse_args()
+    if not os.path.exists("tmp"):
+        os.mkdir("tmp")
 
-AudioSegment.from_file(infile).export("tmp/music.wav", format="wav")
+    # set parameters
+    fps = args.fps
+    shape = args.resolution
+    lookahead = args.lookahead
+    infile = args.input
+    outfile = args.output
+    sr = args.sampling_rate
+    length = 1024
+    width = int(sr / fps / 2)
+    kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
 
-# load file
-raw, sr = sf.read("tmp/music.wav")
-raw = raw.sum(axis=1)
+    # change format of input audio
+    AudioSegment.from_file(infile).export("tmp/music.wav", format="wav")
+    # load file
+    raw, sr = sf.read("tmp/music.wav")
+    if raw.ndim > 1:
+        raw = raw.sum(axis=1)
+    duration = len(raw) / sr
 
-duration = len(raw) / sr
+    # resample to lower sample rate
+    resampled = scipy.signal.resample(raw, int(duration * sr))
+    padding = int(lookahead * sr / width / 2)
 
-# set parameters
-sr = 8000
-length = 1024
-width = 64
-kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+    # create Gaussian window
+    window = np.arange(-length, length) / length * 2
+    window = np.exp(-np.pi * 2 * window ** 2)
 
-# resample to lower sample rate
-resampled = scipy.signal.resample(raw, int(duration * sr))
-padding = int(lookahead * sr / width / 2)
+    # calculate spectrogram
+    spinner = Halo(text="Creating spectrogram", spinner="line")
+    spinner.start()
+    _, _, spectrogram = scipy.signal.spectrogram(np.pad(resampled, length), fs=sr, nperseg=2*length, noverlap=2*length-width, window=window)
+    spinner.succeed()
 
-# create Gaussian window
-window = np.arange(-length, length) / length * 2
-window = np.exp(-np.pi * 2 * window ** 2)
+    # process spectrogram for better display
+    spectrogram = np.pad(spectrogram, ((0, 0), (padding, padding)))
+    spectrogram /= spectrogram.max()
+    spectrogram = 1 - (1 - np.minimum(1, np.sqrt(spectrogram))) ** 4
+    spectrogram *= 255
+    spectrogram = np.flipud(spectrogram.astype(np.uint8))
 
-# calculate spectrogram
-_, _, spectrogram = scipy.signal.spectrogram(np.pad(resampled, length), fs=sr, nperseg=2*length, noverlap=2*length-width, window=window)
-# process spectrogram for better display
-spectrogram = np.pad(spectrogram, ((0, 0), (padding, padding)))
-spectrogram /= spectrogram.max()
-spectrogram = 1 - (1 - np.minimum(1, np.sqrt(spectrogram))) ** 4
-spectrogram *= 255
-spectrogram = np.flipud(spectrogram.astype(np.uint8))
+    # open video
+    writer = cv2.VideoWriter(
+        "tmp/video.mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, shape, False)
 
-# open video
-writer = cv2.VideoWriter(
-    "tmp/video.mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, shape, False)
+    # add each frame to video
+    for i in trange(int(duration * fps), desc="Creating video"):
+        # take a slice of the entire spectrogram
+        left = int(i * sr / fps / width)
+        image = cv2.resize(spectrogram[:, left:left + padding * 2], shape)
+        # sharpen
+        image = cv2.filter2D(image, -1, kernel)
+        # add a line down the centre
+        image = cv2.line(image, (shape[0]//2, 0), (shape[0]//2, shape[1]), 255, 1)
+        # save image to video
+        writer.write(image)
+    writer.release()
 
-# add each frame to video
-for i in trange(int(duration * fps), desc="Creating video"):
-    # take a slice of the entire spectrogram
-    left = int(i * sr / fps / width)
-    image = cv2.resize(spectrogram[:, left:left + padding * 2], shape)
-    # sharpen
-    image = cv2.filter2D(image, -1, kernel)
-    # add a line down the centre
-    image = cv2.line(image, (shape[0]//2, 0), (shape[0]//2, shape[1]), 255, 1)
-    # save image to video
-    writer.write(image)
-writer.release()
+    # dub music
+    ffmpeg = FFmpeg().option('y').input(
+        infile
+    ).input(
+        "tmp/video.mp4"
+    ).output(
+        outfile
+    )
 
-# dub music
-ffmpeg = FFmpeg().option('y').input(
-    infile
-).input(
-    "tmp/video.mp4"
-).output(
-    outfile
-)
-# add spinner as this takes a while
-spinner = Halo(text="Adding audio", spinner="line")
-spinner.start()
-asyncio.run(ffmpeg.execute())
-spinner.succeed()
+    # add spinner as this takes a while
+    spinner = Halo(text="Adding audio", spinner="line")
+    spinner.start()
+    asyncio.run(ffmpeg.execute())
+    spinner.succeed()
