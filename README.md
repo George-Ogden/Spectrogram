@@ -10,6 +10,11 @@ The convolution used in this project is a Gaussian to create a [Scaled Gabor Tra
 [![7 Nation Army Spectrogram](http://img.youtube.com/vi/BVsp23B8dWo/0.jpg)](http://www.youtube.com/watch?v=BVsp23B8dWo "7 Nation Army Spectrogram")
 [![Für Elise Spectrogram](http://img.youtube.com/vi/a5Or6Bafqug/0.jpg)](http://www.youtube.com/watch?v=a5Or6Bafqug "Für Elise Spectrogram")  
 Full playlist: [https://www.youtube.com/watch?v=W_m7tK5T9-I&list=PL1_riyn9sOjc3FAxJN3EPs8b6vM4ArGfp](https://www.youtube.com/watch?v=W_m7tK5T9-I&list=PL1_riyn9sOjc3FAxJN3EPs8b6vM4ArGfp)
+## Install
+You will need to install [ffmpeg](https://ffmpeg.org/download.html) as well as downloading Python dependencies
+```
+pip install -r requirements.txt
+```
 ## Usage
 ### Recommended Usage
 ```
