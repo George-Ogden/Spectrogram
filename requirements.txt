@@ -1,0 +1,8 @@
+halo
+numpy
+opencv-python
+pydub
+python-ffmpeg
+scipy
+soundfile
+tqdm
