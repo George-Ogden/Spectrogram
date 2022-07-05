@@ -2,12 +2,10 @@ import scipy.signal
 import numpy as np
 import cv2
 
+from pydub import AudioSegment
 from ffmpeg import FFmpeg
 import soundfile as sf
 import asyncio
-
-from pydub.utils import get_array_type
-from pydub import AudioSegment
 
 from argparse import ArgumentParser
 import shutil
