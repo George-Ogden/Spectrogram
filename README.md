@@ -14,7 +14,7 @@ The convolution used in this project is a Gaussian to create a [Scaled Gabor Tra
 ### Für Elise
 [![Für Elise Spectrogram](http://img.youtube.com/vi/a5Or6Bafqug/0.jpg)](http://www.youtube.com/watch?v=a5Or6Bafqug "Für Elise Spectrogram")  
 ### Solo Sonata 1
-[![Solo Sonata 1 Spectrogram]](http://img.youtube.com/vi/TJEJEN0ND8s/0.jpg)](http://www.youtube.com/watch?v=TJEJEN0ND8s "Solo Sonata 1 Spectrogram")  
+[![Solo Sonata 1 Spectrogram](http://img.youtube.com/vi/TJEJEN0ND8s/0.jpg)](http://www.youtube.com/watch?v=TJEJEN0ND8s "Solo Sonata 1 Spectrogram")  
 ### Full Playlist
 [https://www.youtube.com/watch?v=W_m7tK5T9-I&list=PL1_riyn9sOjc3FAxJN3EPs8b6vM4ArGfp](https://www.youtube.com/watch?v=W_m7tK5T9-I&list=PL1_riyn9sOjc3FAxJN3EPs8b6vM4ArGfp)
 ## Install
